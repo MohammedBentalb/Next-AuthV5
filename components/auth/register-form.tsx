@@ -37,7 +37,6 @@ export const RegisterForm = () => {
   });
 
   const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
-    console.log(process.env.NEXT_PUBLIC_DATABASE_NAME);
     setError("");
     setSuccess("");
     startTransition(async () => {
