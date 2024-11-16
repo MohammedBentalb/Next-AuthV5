@@ -5,6 +5,7 @@ import * as z from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/database/prisma";
 import { getUserByEmail } from "@/data/user";
+import { redirect } from "next/navigation";
 
 export const register = async (values: z.infer<typeof LoginSchema>) => {
   const validatedFields = RegisterSchema.safeParse(values);
@@ -23,5 +24,5 @@ export const register = async (values: z.infer<typeof LoginSchema>) => {
     },
   });
 
-  return { success: "User created!" };
+  redirect("/auth/login");
 };
