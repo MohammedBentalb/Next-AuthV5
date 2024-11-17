@@ -16,9 +16,18 @@ declare module "next-auth" {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  events: {
+    async linkAccount({ user }) {
+      if (!user || !user.id) return;
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { emailVerified: new Date() },
+      });
+    },
+  },
   callbacks: {
     async signIn({ user }) {
-      console.log(user);
+      // console.log(user);
       // example of controlling the email provided
       // if (user.email && !user.email.includes("@gmail.com")) return false;
       return true;
