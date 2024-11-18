@@ -3,19 +3,24 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "./database/prisma";
 import authConfig from "./auth.config";
 import { getUserById } from "./data/user";
+import { Role } from "@prisma/client";
 
 // extending the session user to also hold the user.role type
 declare module "next-auth" {
   // eslint-disable-next-line no-unused-vars
   interface Session {
     user: {
-      role: "ADMIN" | "USER";
+      role: Role;
     } & DefaultSession["user"];
   }
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/error",
+  },
   events: {
     async linkAccount({ user }) {
       if (!user || !user.id) return;
@@ -33,8 +38,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async session({ session, token }) {
-      if (token.role && session.user)
-        session.user.role = token.role as "ADMIN" | "USER";
+      if (token.role && session.user) session.user.role = token.role as Role;
       if (token.sub && session.user) {
         session.user.id = token.sub;
       }
