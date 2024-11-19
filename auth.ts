@@ -31,10 +31,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   callbacks: {
-    async signIn({ user }) {
-      // console.log(user);
-      // example of controlling the email provided
-      // if (user.email && !user.email.includes("@gmail.com")) return false;
+    async signIn({ user, account }) {
+      /**
+       * example of controlling the email provided
+       * if (user.email && !user.email.includes("@gmail.com")) return false;
+       */
+      // Allowing users to sign in when using Google / Github providers since they are trusted and verified (refer ro "linkAccount" above)
+      if (account?.provider !== "credentials") return true;
+      if (!user.id) return false;
+
+      const existingUser = await getUserById(user.id);
+
+      // Prevent sign in without email verification
+      if (!existingUser?.emailVerified) return false;
       return true;
     },
     async session({ session, token }) {

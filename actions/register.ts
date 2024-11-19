@@ -5,7 +5,8 @@ import * as z from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/database/prisma";
 import { getUserByEmail } from "@/data/user";
-import { redirect } from "next/navigation";
+import { generateVerificationToken } from "@/lib/tokens";
+import { sendVerificationEmail } from "@/lib/mail";
 
 export const register = async (values: z.infer<typeof LoginSchema>) => {
   const validatedFields = RegisterSchema.safeParse(values);
@@ -24,5 +25,9 @@ export const register = async (values: z.infer<typeof LoginSchema>) => {
     },
   });
 
-  redirect("/auth/login");
+  // eslint-disable-next-line no-unused-vars
+  const verificationToken = await generateVerificationToken(email);
+  await sendVerificationEmail(verificationToken.email, verificationToken.token);
+  
+  return { success: "Confirmation email sent!!" };
 };
